@@ -1,0 +1,8 @@
+# give requeiremnets that are specific to a projct 
+# dev requirements
+pytest==7.2.2
+tox==4.4.6
+black==23.1.0
+flake8==6.0.0
+mypy==1.1.1
+-e .
