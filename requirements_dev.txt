@@ -78,6 +78,10 @@ authlib==1.2.1
     # via
     #   -c requirements/requirements.txt
     #   -r requirements/requirements.in
+pdfplumber
+    # via
+    #   -c requirements/requirements.txt
+    #   -r requirements/requirements.in
 babel==2.12.1
     # via jupyterlab-server
 backcall==0.2.0

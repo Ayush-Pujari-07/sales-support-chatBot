@@ -258,6 +258,8 @@ pyyaml==6.0.1
     #   langchain-community
     #   langchain-core
     #   uvicorn
+pdfplumber
+    # via -r requirements/requirements.in
 qdrant-client==1.9.1
     # via -c requirements/requirements.txt
     #   -r requirements/requirements.in
