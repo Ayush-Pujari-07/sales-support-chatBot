@@ -10,8 +10,8 @@ from fastapi import FastAPI, HTTPException, Depends, responses
 from starlette.middleware.cors import CORSMiddleware
 
 # from src import redis
-from chatBot.logger import logger
-from chatBot.config import app_configs, settings
+from src.logger import logger
+from src.config import app_configs, settings
 
 logger.info("Starting application")
 
@@ -84,21 +84,3 @@ async def healthcheck() -> dict[str, str]:
     logger.info("Healthcheck")
     return {"status": "ok"}
 
-
-@app.get("/logs/download")
-async def download_logs(
-    user: str = Depends()
-):
-    try:
-        # Ensure logs directory exists
-        if not os.path.exists("logs"):
-            raise HTTPException(status_code=404, detail="Logs not found")
-
-        # Create a Zip file
-        shutil.make_archive("logs", "zip", "logs")
-
-        # Return the Zip file as a response
-        return responses.FileResponse("logs.zip", media_type="application/zip", filename="logs.zip")
-
-    except Exception as e:
-        raise HTTPException(status_code=500, detail=str(e)) from e

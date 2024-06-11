@@ -1,10 +1,14 @@
+import os
 import logging
-from enum import Enum # type: ignore
-from pathlib import Path # type: ignore
 
-from typing import Any # type: ignore
+from enum import Enum  # type: ignore
+from pathlib import Path  # type: ignore
+
+from typing import Any  # type: ignore
 from pydantic import RedisDsn, model_validator
 from pydantic_settings import BaseSettings
+from dotenv import load_dotenv, find_dotenv
+load_dotenv(find_dotenv())
 
 PROJECT_ROOT = Path(__file__).parent.parent.parent
 logger = logging.getLogger(__name__)
@@ -49,17 +53,16 @@ class Config(BaseSettings):
     SITE_DOMAIN: str = "localhost"
 
     # database settings
-    DB_USER: str
-    DB_PASSWORD: str
-    DB_NAME: str
+    DB_USER: str = os.environ.get("DB_USER")
+    DB_PASSWORD: str = os.environ.get("DB_PASSWORD")
+    DB_NAME: str = os.environ.get("DB_NAME")
     DB_NAME_TEST: str | None = None
-    DB_PORT: str
-    DB_HOST: str
+    DB_PORT: str = os.environ.get("DB_PORT")
+    DB_HOST: str = os.environ.get("DB_HOST")
     # MIGRATIONS_DIR: Path = PROJECT_ROOT / "migrations" / "versions"
 
     @property
     def DB_URL(self):
-        logger.info(f"This is line number 62\n, postgresql+asyncpg://{self.DB_USER}:{self.DB_PASSWORD}@{self.DB_HOST}:{self.DB_PORT}/{self.DB_NAME}")
         return f"postgresql+asyncpg://{self.DB_USER}:{self.DB_PASSWORD}@{self.DB_HOST}:{self.DB_PORT}/{self.DB_NAME}"
 
     @model_validator(mode="after")

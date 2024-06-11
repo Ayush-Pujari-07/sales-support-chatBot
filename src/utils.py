@@ -1,11 +1,9 @@
 import os
-import json
 import random  # type: ignore
 import string  # type: ignore
 import logging
 import tiktoken
 import requests
-import contextlib  # type: ignore
 
 from enum import Enum  # type: ignore
 from openai import AsyncOpenAI
