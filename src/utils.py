@@ -20,10 +20,6 @@ GPT4 = "gpt-4o"
 GPT3 = "gpt-3.5-turbo-0125"
 
 
-def generate_random_alphanum(length: int = 20) -> str:
-    return "".join(random.choices(ALPHA_NUM, k=length))
-
-
 def get_filename_from_url(url):
     a = urlparse(url)
     return os.path.basename(a.path)

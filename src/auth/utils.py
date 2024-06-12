@@ -1,7 +1,14 @@
-from typing import Any  # type: ignore
+import random  # type: ignore
+import string  # type: ignore
 
-from config import settings
-from auth.config import auth_config
+from typing import Any  # type: ignore
+from datetime import datetime, timedelta  # type: ignore
+
+from src.config import settings
+from src.auth.config import auth_config
+
+
+ALPHA_NUM = string.ascii_letters + string.digits
 
 
 def get_refresh_token_settings(
@@ -23,3 +30,10 @@ def get_refresh_token_settings(
         "value": refresh_token,
         "max_age": auth_config.REFRESH_TOKEN_EXP,
     }
+
+
+def generate_random_alphanum(length: int = 20) -> str:
+    return "".join(random.choices(ALPHA_NUM, k=length))
+
+def calculate_refresh_token_expiry() -> datetime:
+    return datetime.utcnow() + timedelta(seconds=auth_config.REFRESH_TOKEN_EXP)

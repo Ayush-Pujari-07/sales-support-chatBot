@@ -1,14 +1,14 @@
-from typing import Any  # type: ignore
-from datetime import datetime  # type: ignore
-
-from sqlalchemy.ext.asyncio import AsyncSession
-from fastapi import Cookie, Depends
-
-from auth import service
-from db import get_db
-from auth.exceptions import EmailTaken, RefreshTokenNotValid
-from auth.schemas import AuthUser
 import logging
+
+from typing import Any  # type: ignore
+from fastapi import Cookie, Depends
+from datetime import datetime, timezone  # type: ignore
+from sqlalchemy.ext.asyncio import AsyncSession
+
+from src.db import get_db
+from src.auth import service
+from src.auth.schemas import AuthUser
+from src.auth.exceptions import EmailTaken, RefreshTokenNotValid
 
 logger = logging.getLogger(__name__)
 
@@ -51,4 +51,4 @@ async def valid_refresh_token_user(
 
 
 def _is_valid_refresh_token(db_refresh_token: dict[str, Any]) -> bool:
-    return datetime.utcnow() <= db_refresh_token["expires_at"]
+    return datetime.now(timezone.utc) <= db_refresh_token["expires_at"]

@@ -8,12 +8,12 @@ from sqlalchemy import select, update, insert
 from sqlalchemy.ext.asyncio import AsyncSession
 from sqlalchemy.orm import selectinload
 
-from utils import utils
-from auth.config import auth_config
-from auth.exceptions import InvalidCredentials
-from auth.schemas import AuthUser
-from auth.security import check_password, hash_password
-from auth.models import User, RefreshToken
+from src.auth import utils
+from src.auth.config import auth_config
+from src.auth.exceptions import InvalidCredentials
+from src.auth.schemas import AuthUser
+from src.auth.security import check_password, hash_password
+from src.auth.models import User, RefreshToken
 
 
 async def create_user(db: AsyncSession, user_data: AuthUser) -> User:
@@ -60,19 +60,13 @@ async def create_refresh_token(
     if not refresh_token:
         refresh_token = utils.generate_random_alphanum(64)
 
-    # insert_query = RefreshToken.insert().values(
-    #     uuid=uuid.uuid4(),
-    #     refresh_token=refresh_token,
-    #     expires_at=datetime.now() + timedelta(seconds=auth_config.REFRESH_TOKEN_EXP),
-    #     user_id=user_id,
-    # )
-    insert_query = insert(RefreshToken).values(
-        id=uuid.uuid4(),
+    insert_query = RefreshToken(
         refresh_token=refresh_token,
-        expires_at=datetime.now() + timedelta(seconds=auth_config.REFRESH_TOKEN_EXP),
+        expires_at=utils.calculate_refresh_token_expiry(),
         user_id=user_id,
     )
-    await db.execute(insert_query)
+    db.add(insert_query)
+    await db.commit()
 
     return refresh_token
 
@@ -113,3 +107,11 @@ async def authenticate_user(db: AsyncSession, auth_data: AuthUser) -> User:
         raise InvalidCredentials()
 
     return user
+
+
+# async def authenticate_user(db: AsyncSession, auth_data: AuthUser) -> User:
+#     user = await db.execute(select(User).where(User.email == auth_data.email))
+#     user = user.scalars().first()
+#     if user and check_password(auth_data.password, user.password):
+#         return user
+#     return None

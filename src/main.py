@@ -1,17 +1,16 @@
-import os
-import shutil  # type: ignore
 import sentry_sdk  # type: ignore
 import redis.asyncio as aioredis
 
 from typing import AsyncGenerator  # type: ignore
 from contextlib import asynccontextmanager  # type: ignore
 
-from fastapi import FastAPI, HTTPException, Depends, responses
+from fastapi import FastAPI
 from starlette.middleware.cors import CORSMiddleware
 
 # from src import redis
 from src.logger import logger
 from src.config import app_configs, settings
+from src.auth.router import router as auth_router
 
 logger.info("Starting application")
 
@@ -84,3 +83,4 @@ async def healthcheck() -> dict[str, str]:
     logger.info("Healthcheck")
     return {"status": "ok"}
 
+app.include_router(auth_router, tags=["auth"])

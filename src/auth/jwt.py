@@ -1,22 +1,23 @@
 from typing import Any  # type: ignore
+from jose import JWTError, jwt
 from datetime import datetime, timedelta  # type: ignore
 
 from fastapi import Depends, HTTPException, Request
 from fastapi.security import OAuth2PasswordBearer
-from jose import JWTError, jwt
 
-from auth.models import User
-from auth.schemas import JWTData
-from auth.config import auth_config
-from auth.exceptions import AuthorizationFailed, AuthRequired, InvalidToken
 
-oauth2_scheme = OAuth2PasswordBearer(tokenUrl="/auth/users/tokens", auto_error=False)
+from src.auth.models import User
+from src.auth.schemas import JWTData
+from src.auth.config import auth_config
+from src.auth.exceptions import AuthorizationFailed, AuthRequired, InvalidToken
+
+oauth2_scheme = OAuth2PasswordBearer(tokenUrl="/users/tokens", auto_error=False)
 
 
 def create_access_token(
     *,
     user: User,
-    expires_delta: timedelta = timedelta(minutes=auth_config.JWT_EXP),
+    expires_delta: timedelta = timedelta(minutes=auth_config.JWT_EXPIRATION),
 ) -> str:
     # if user.is_admin:
     #     jwt_data = {
@@ -31,7 +32,7 @@ def create_access_token(
         "password": str(user.password),
     }
 
-    return jwt.encode(jwt_data, auth_config.JWT_SECRET, algorithm=auth_config.JWT_ALG)
+    return jwt.encode(jwt_data, auth_config.SECRET_KEY, algorithm=auth_config.JWT_ALGORITHM)
 
 
 async def parse_jwt_user_data_optional(
@@ -41,7 +42,7 @@ async def parse_jwt_user_data_optional(
         return None
     try:
         payload = jwt.decode(
-            token, auth_config.JWT_SECRET, algorithms=[auth_config.JWT_ALG]
+            token, auth_config.SECRET_KEY, algorithms=[auth_config.JWT_ALGORITHM]
         )
     except JWTError as e:
         raise InvalidToken() from e
@@ -89,7 +90,8 @@ async def verify_token(api_key: str) -> None:
     """
     try:
         decoded_token = jwt.decode(
-            api_key, auth_config.JWT_SECRET, algorithms=[auth_config.JWT_ALG])
+            api_key, auth_config.SECRET_KEY, algorithms=[auth_config.JWT_ALGORITHM]
+        )
     except JWTError as e:
         raise TokenVerificationError("Unauthorized user") from e
 

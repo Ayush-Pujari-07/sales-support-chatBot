@@ -1,8 +1,8 @@
 import re  # type: ignore
 
 from datetime import datetime  # type: ignore
-from pydantic import EmailStr, Field, field_validator, BaseModel, AfterValidator
 from typing_extensions import Annotated  # type: ignore
+from pydantic import EmailStr, Field, field_validator, BaseModel, AfterValidator
 
 
 STRONG_PASSWORD_PATTERN = re.compile(r"^(?=.*[\d])(?=.*[!@#$%^&*])[\w!@#$%^&*]{6,128}$")
