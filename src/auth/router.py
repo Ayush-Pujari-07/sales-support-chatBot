@@ -1,4 +1,6 @@
 import logging
+
+from uuid import UUID  # type: ignore
 from typing import Any  # type: ignore
 
 from sqlalchemy.ext.asyncio import AsyncSession
@@ -13,8 +15,7 @@ from src.auth.dependencies import (
 )
 from src.db import get_db
 from src.auth.models import RefreshToken
-from src.auth.jwt import parse_jwt_user_data
-from src.auth.schemas import AccessTokenResponse, AuthUser, JWTData, UserResponse
+from src.auth.schemas import AccessTokenResponse, AuthUser, UserResponse
 
 router = APIRouter()
 
@@ -33,17 +34,17 @@ async def register_user(
     return UserResponse(email=user.email)
 
 
-@router.get("/users/me", response_model=UserResponse)
-async def get_my_account(
-    jwt_data: JWTData = Depends(parse_jwt_user_data),
-) -> dict[str, str]:
-    logger.info(f"User requested: {jwt_data.user_id}")
+# @router.get("/users/me", response_model=UserResponse)
+# async def get_my_account(
+#     jwt_data: JWTData = Depends(parse_jwt_user_data),
+# ) -> dict[str, str]:
+#     logger.info(f"User requested: {jwt_data.user_id}")
 
-    user = await service.get_user_by_id(jwt_data.user_id)
+#     user = await service.get_user_by_id(jwt_data.user_id)
 
-    return {
-        "email": user["email"],
-    }
+#     return {
+#         "email": user["email"],
+#     }
 
 
 # create yuser token and refresh token
@@ -81,13 +82,21 @@ async def auth_user(
     )
 
 
-@router.delete("/users/tokens")
-async def logout_user(
-    response: Response,
-    refresh_token: dict[str, Any] = Depends(valid_refresh_token),
-) -> None:
-    await service.expire_refresh_token(refresh_token["uuid"])
+# @router.delete("/users/tokens")
+# async def logout_user(
+#     response: Response,
+#     refresh_token: dict[str, Any] = Depends(valid_refresh_token),
+# ) -> None:
+#     await service.expire_refresh_token(refresh_token["uuid"])
 
-    response.delete_cookie(
-        **utils.get_refresh_token_settings(refresh_token["refresh_token"], expired=True)
-    )
+#     response.delete_cookie(
+#         **utils.get_refresh_token_settings(refresh_token["refresh_token"], expired=True)
+#     )
+
+
+@router.post("/users/me")
+async def get_user_info(
+    user: RefreshToken = Depends(valid_refresh_token),
+) -> dict[str, UUID]:
+    logger.info(f"User requested: {user.user_id}")
+    return {"user_id": user.user_id}

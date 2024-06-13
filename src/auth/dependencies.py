@@ -1,7 +1,8 @@
 import logging
+from datetime import datetime, timezone  # type: ignore
 
 from typing import Any  # type: ignore
-from fastapi import Cookie, Depends
+from fastapi import Depends, Body, Cookie
 from datetime import datetime, timezone  # type: ignore
 from sqlalchemy.ext.asyncio import AsyncSession
 
@@ -30,6 +31,7 @@ async def valid_refresh_token(
     refresh_token: str = Cookie(..., alias="refreshToken"),
 ) -> dict[str, Any]:
     db_refresh_token = await service.get_refresh_token(db, refresh_token)
+
     if not db_refresh_token:
         raise RefreshTokenNotValid()
 
@@ -51,4 +53,5 @@ async def valid_refresh_token_user(
 
 
 def _is_valid_refresh_token(db_refresh_token: dict[str, Any]) -> bool:
-    return datetime.now(timezone.utc) <= db_refresh_token["expires_at"]
+    expires_at = datetime.fromisoformat(str(db_refresh_token.expires_at)).astimezone(timezone.utc)
+    return datetime.now(timezone.utc) <= expires_at

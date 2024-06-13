@@ -32,5 +32,5 @@ class RefreshToken(Base, CreatedUpdatedMixin):
     refresh_token: Mapped[str] = mapped_column(sa.String, nullable=False)
     expires_at: Mapped[datetime] = mapped_column(sa.DateTime, nullable=False)
 
-    def __repr__(self) -> str:
-        return f"<RefreshToken {self.uuid}>"
+    # def __repr__(self) -> str:
+    #     return f"<RefreshToken {self.uuid}>"

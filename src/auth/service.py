@@ -1,4 +1,5 @@
 import uuid  # type: ignore
+import logging
 
 from typing import Any  # type: ignore
 from datetime import datetime, timedelta  # type: ignore
@@ -14,6 +15,8 @@ from src.auth.exceptions import InvalidCredentials
 from src.auth.schemas import AuthUser
 from src.auth.security import check_password, hash_password
 from src.auth.models import User, RefreshToken
+
+logger = logging.getLogger(__name__)
 
 
 async def create_user(db: AsyncSession, user_data: AuthUser) -> User:
@@ -71,7 +74,7 @@ async def create_refresh_token(
     return refresh_token
 
 
-async def get_refresh_token(db: AsyncSession, refresh_token: str) -> dict[str, Any] | None:
+async def get_refresh_token(db: AsyncSession, refresh_token: str) -> RefreshToken:
     select_query = (
         select(
             RefreshToken
@@ -107,11 +110,3 @@ async def authenticate_user(db: AsyncSession, auth_data: AuthUser) -> User:
         raise InvalidCredentials()
 
     return user
-
-
-# async def authenticate_user(db: AsyncSession, auth_data: AuthUser) -> User:
-#     user = await db.execute(select(User).where(User.email == auth_data.email))
-#     user = user.scalars().first()
-#     if user and check_password(auth_data.password, user.password):
-#         return user
-#     return None
