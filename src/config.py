@@ -82,8 +82,8 @@ class Config(BaseSettings):
     CHROMA_HOST: str | None = None
     CHROMA_PORT: int | None = None
 
-    OPENAI_API_KEY: str | None = None
-    ANTHROPIC_API_KEY: str | None = None
+    OPENAI_API_KEY: str | None = os.environ.get("OPENAI_API_KEY")
+    # ANTHROPIC_API_KEY: str | None = os.environ.get("ANTHROPIC_API_KEY")
 
     LANGCHAIN_TRACING_V2: bool = False
     LANGCHAIN_ENDPOINT: str = "https://api.smith.langchain.com"
@@ -91,6 +91,7 @@ class Config(BaseSettings):
     LANGCHAIN_PROJECT: str | None = None
 
     SERPER_API_KEY: str | None = None
+    MAX_IMAGE_UPLOAD_SIZE: int = 1024 * 1024 * 10  # 10MB
 
 
 settings = Config()

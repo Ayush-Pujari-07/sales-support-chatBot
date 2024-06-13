@@ -11,6 +11,7 @@ from starlette.middleware.cors import CORSMiddleware
 from src.logger import logger
 from src.config import app_configs, settings
 from src.auth.router import router as auth_router
+from src.chat.router import router as chat_router
 
 logger.info("Starting application")
 
@@ -84,3 +85,4 @@ async def healthcheck() -> dict[str, str]:
     return {"status": "ok"}
 
 app.include_router(auth_router, tags=["auth"])
+app.include_router(chat_router, tags=["chat"])
