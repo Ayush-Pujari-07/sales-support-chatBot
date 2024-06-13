@@ -1,6 +1,5 @@
 import streamlit as st
 import requests
-import json
 
 CHAT_START_URL = "http://127.0.0.1:9000/chat/start"
 ADD_MESSAGE_URL = "http://127.0.0.1:9000/chat"
@@ -51,12 +50,24 @@ def get_all_chat(refresh_token):
         return None
 
 
-def display_chat_messages(messages):
+def display_chat_messages(messages, displayed_ids):
     for message in messages:
-        if message['role'] == 'user':
-            st.markdown(f"**You:** {message['message']}")
-        else:
-            st.markdown(f"**Assistant:** {message['message']}")
+        if message['id'] not in displayed_ids:
+            if message['role'] == 'user':
+                with st.chat_message("user"):
+                    st.markdown(message['message'])
+            else:
+                with st.chat_message("assistant"):
+                    st.markdown(message['message'])
+            displayed_ids.add(message['id'])
+
+
+def load_chat_messages(refresh_token):
+    get_all_chat_response = get_all_chat(refresh_token)
+    if get_all_chat_response and get_all_chat_response.status_code == 200:
+        return get_all_chat_response.json()
+    st.error("Failed to retrieve chat messages!")
+    return []
 
 
 def chat_page():
@@ -69,25 +80,21 @@ def chat_page():
         else:
             st.error("Failed to start chat!")
 
-    chat_message = st.text_input("Message")
-    if st.button("Send Message"):
+    # Initialize the set of displayed message IDs
+    if 'displayed_message_ids' not in st.session_state:
+        st.session_state.displayed_message_ids = set()
+
+    # Load chat messages when the page loads
+    if 'refresh_token' in st.session_state:
+        chat_messages = load_chat_messages(st.session_state.refresh_token)
+        display_chat_messages(chat_messages, st.session_state.displayed_message_ids)
+
+    if chat_message := st.chat_input("Type your message here..."):
         add_message_response = add_message_to_chat(st.session_state.refresh_token, chat_message)
         if add_message_response and add_message_response.status_code == 200:
             st.success("Message sent successfully!")
+            # Refresh chat messages after sending a message
+            chat_messages = load_chat_messages(st.session_state.refresh_token)
+            display_chat_messages(chat_messages, st.session_state.displayed_message_ids)
         else:
             st.error("Failed to send message!")
-
-    if st.button("Get All Messages"):
-        get_all_chat_response = get_all_chat(st.session_state.refresh_token)
-        if get_all_chat_response and get_all_chat_response.status_code == 200:
-            chat_messages = get_all_chat_response.json()
-            display_chat_messages(chat_messages)
-        else:
-            st.error("Failed to retrieve chat messages!")
-
-    # Automatically load chat messages when the page loads
-    if 'refresh_token' in st.session_state:
-        get_all_chat_response = get_all_chat(st.session_state.refresh_token)
-        if get_all_chat_response and get_all_chat_response.status_code == 200:
-            chat_messages = get_all_chat_response.json()
-            display_chat_messages(chat_messages)
