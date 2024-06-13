@@ -19,3 +19,4 @@ langchain-openai
 jsonschema
 python-multipart
 exa-py
+sqlalchemy-file

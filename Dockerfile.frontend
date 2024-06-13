@@ -14,13 +14,12 @@ COPY requirements/ /tmp/requirements
 RUN pip install -U pip && \
     pip install --no-cache-dir -r /tmp/requirements/requirements_dev.txt
 
-COPY . /src
-ENV PATH "$PATH:/src/scripts"
+COPY . /app
 
-RUN useradd -m -d /src -s /bin/bash app \
-    && chown -R app:app /src/* && chmod +x /src/scripts/*
+RUN useradd -m -d /app -s /bin/bash app \
+    && chown -R app:app /app/*
 
-WORKDIR /src
+WORKDIR /app
 USER app
 
-CMD ["./scripts/start-dev.sh"]
+CMD ["streamlit", "run", "frontend/main.py", "--server.port", "8501"]
