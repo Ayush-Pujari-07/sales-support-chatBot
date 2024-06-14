@@ -1,6 +1,7 @@
 import streamlit as st
 import requests
 
+
 CHAT_START_URL = "http://127.0.0.1:9000/chat/start"
 ADD_MESSAGE_URL = "http://127.0.0.1:9000/chat"
 ALL_CHAT_URL = "http://127.0.0.1:9000/allChat"
@@ -25,10 +26,10 @@ def start_chat(refresh_token):
         return None
 
 
-def add_message_to_chat(refresh_token, message, is_image=False, image_data=None):
+def add_message_to_chat(refresh_token, message, is_image=False, image_data=None, stream=False):
     try:
         headers = set_cookie_in_header(refresh_token)
-        data = {"message": message, "is_image": is_image}
+        data = {"message": message, "is_image": is_image, "stream": stream}
         if is_image:
             data["image_data"] = image_data
         response = requests.post(ADD_MESSAGE_URL, headers=headers, json=data)
@@ -52,14 +53,12 @@ def get_all_chat(refresh_token):
 
 def display_chat_messages(messages, displayed_ids):
     for message in messages:
-        if message['id'] not in displayed_ids:
-            if message['role'] == 'user':
-                with st.chat_message("user"):
-                    st.markdown(message['message'])
-            else:
-                with st.chat_message("assistant"):
-                    st.markdown(message['message'])
-            displayed_ids.add(message['id'])
+        if message['role'] == 'user':
+            with st.chat_message("user"):
+                st.markdown(message['message'])
+        else:
+            with st.chat_message("assistant"):
+                st.markdown(message['message'])
 
 
 def load_chat_messages(refresh_token):
@@ -93,11 +92,15 @@ def chat_page():
         st.session_state.messages = chat_messages
 
     if chat_message := st.chat_input("Type your message here..."):
-        add_message_response = add_message_to_chat(st.session_state.refresh_token, chat_message)
+        add_message_response = add_message_to_chat(st.session_state.refresh_token, chat_message, stream=True)
         if add_message_response and add_message_response.status_code == 200:
-            st.success("Message sent successfully!")
-            if chat_messages := load_chat_messages(st.session_state.refresh_token):
-                display_chat_messages(chat_messages, st.session_state.displayed_message_ids)
-                st.session_state.messages = chat_messages
+            st.session_state.messages.append({"role": "user", "message": chat_message})
+            with st.chat_message("user"):
+                st.markdown(chat_message)
+
+            assistant_message = add_message_response.json().get("message", "")
+            with st.chat_message("assistant"):
+                st.markdown(assistant_message)
+            st.session_state.messages.append({"role": "assistant", "message": assistant_message})
         else:
             st.error("Failed to send message!")

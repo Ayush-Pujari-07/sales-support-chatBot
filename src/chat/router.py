@@ -34,6 +34,7 @@ async def create_chat(
 async def add_message_to_chat(
     request: Request,
     is_image: bool = False,
+    streaming: bool = False,
     image_data: str = Body(None, embed=True),
     message: str = Body(..., embed=True),
     db: AsyncSession = Depends(get_db),
@@ -49,6 +50,9 @@ async def add_message_to_chat(
                 user_message=message,
                 image_data=image_data,
             )
+        if streaming:
+            print(f"streaming: {streaming}")
+            return await chat.task_chat(db=db, request=request, user_message=message, stream=streaming)
 
         # await chat.add_user_message(db=db, content=message, user_id=user.user_id)
         return await chat.task_chat(db=db, request=request, user_message=message)
