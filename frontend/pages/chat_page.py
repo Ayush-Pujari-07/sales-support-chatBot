@@ -67,11 +67,19 @@ def load_chat_messages(refresh_token):
     if get_all_chat_response and get_all_chat_response.status_code == 200:
         return get_all_chat_response.json()
     st.error("Failed to retrieve chat messages!")
-    return []
+    return []  # Ensure a list is returned
 
 
 def chat_page():
     st.title("Chat")
+
+    if 'refresh_token' not in st.session_state:
+        st.error("Please log in to access the chat page.")
+        return
+
+    if 'displayed_message_ids' not in st.session_state:
+        st.session_state.displayed_message_ids = set()
+        st.session_state.messages = []
 
     if st.button("Start Chat"):
         start_chat_response = start_chat(st.session_state.refresh_token)
@@ -80,21 +88,16 @@ def chat_page():
         else:
             st.error("Failed to start chat!")
 
-    # Initialize the set of displayed message IDs
-    if 'displayed_message_ids' not in st.session_state:
-        st.session_state.displayed_message_ids = set()
-
-    # Load chat messages when the page loads
-    if 'refresh_token' in st.session_state:
-        chat_messages = load_chat_messages(st.session_state.refresh_token)
+    if chat_messages := load_chat_messages(st.session_state.refresh_token):
         display_chat_messages(chat_messages, st.session_state.displayed_message_ids)
+        st.session_state.messages = chat_messages
 
     if chat_message := st.chat_input("Type your message here..."):
         add_message_response = add_message_to_chat(st.session_state.refresh_token, chat_message)
         if add_message_response and add_message_response.status_code == 200:
             st.success("Message sent successfully!")
-            # Refresh chat messages after sending a message
-            chat_messages = load_chat_messages(st.session_state.refresh_token)
-            display_chat_messages(chat_messages, st.session_state.displayed_message_ids)
+            if chat_messages := load_chat_messages(st.session_state.refresh_token):
+                display_chat_messages(chat_messages, st.session_state.displayed_message_ids)
+                st.session_state.messages = chat_messages
         else:
             st.error("Failed to send message!")
