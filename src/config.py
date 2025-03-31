@@ -78,10 +78,6 @@ class Config(BaseSettings):
     REDIS_URL: str | None = None
     REDIS_DB: int | None = 0
 
-    # chroma settings
-    CHROMA_HOST: str | None = None
-    CHROMA_PORT: int | None = None
-
     OPENAI_API_KEY: str | None = os.environ.get("OPENAI_API_KEY")
     # ANTHROPIC_API_KEY: str | None = os.environ.get("ANTHROPIC_API_KEY")
 
