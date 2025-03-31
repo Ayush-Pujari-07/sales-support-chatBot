@@ -1,6 +1,6 @@
 from typing import Any  # type: ignore
 from jose import JWTError, jwt
-from datetime import datetime, timedelta  # type: ignore
+from datetime import timedelta  # type: ignore
 
 from fastapi import Depends, HTTPException, Request
 from fastapi.security import OAuth2PasswordBearer

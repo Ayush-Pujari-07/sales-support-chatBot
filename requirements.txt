@@ -6,7 +6,10 @@ python-jose
 SQLAlchemy
 httpx
 boto3
+fastapi
+uvicorn
 passlib
+sentry-sdk
 
 pydantic[email]
 pydantic-settings
@@ -21,3 +24,4 @@ python-multipart
 exa-py
 sqlalchemy-file
 motor
+sqlalchemy_file

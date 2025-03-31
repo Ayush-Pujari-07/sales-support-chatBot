@@ -51,7 +51,6 @@ async def add_message_to_chat(
                 image_data=image_data,
             )
         if streaming:
-            print(f"streaming: {streaming}")
             return await chat.task_chat(db=db, request=request, user_message=message, stream=streaming)
 
         # await chat.add_user_message(db=db, content=message, user_id=user.user_id)

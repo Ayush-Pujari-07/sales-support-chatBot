@@ -170,7 +170,6 @@ class Chat:
                     content = ""
                     async for chunk in self.chat_model.astream(message_history):
                         content += chunk
-                        print(f"content: {content}")
                         yield chunk
                     message.content = content
                     db.add(message)

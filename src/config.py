@@ -53,12 +53,12 @@ class Config(BaseSettings):
     SITE_DOMAIN: str = "localhost"
 
     # database settings
-    DB_USER: str = os.environ.get("DB_USER")
-    DB_PASSWORD: str = os.environ.get("DB_PASSWORD")
-    DB_NAME: str = os.environ.get("DB_NAME")
+    DB_USER: str = os.environ.get("DB_USER", "")
+    DB_PASSWORD: str = os.environ.get("DB_PASSWORD", "")
+    DB_NAME: str = os.environ.get("DB_NAME", "")
     DB_NAME_TEST: str | None = None
-    DB_PORT: str = os.environ.get("DB_PORT")
-    DB_HOST: str = os.environ.get("DB_HOST")
+    DB_PORT: str = os.environ.get("DB_PORT", "")
+    DB_HOST: str = os.environ.get("DB_HOST", "")
     # MIGRATIONS_DIR: Path = PROJECT_ROOT / "migrations" / "versions"
 
     @property
