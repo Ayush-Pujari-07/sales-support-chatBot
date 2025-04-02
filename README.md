@@ -4,21 +4,34 @@ A sales support chatbot built with FastAPI and Streamlit that leverages LangChai
 
 ## Features
 
-- User authentication system
-- Real-time chat interface
-- Integration with OpenAI GPT models
-- Document search capabilities via Exa
-- Image generation support via DALL-E
-- Redis caching
-- PostgreSQL database for data persistence
-- Docker containerization
+### Authentication
+- User registration and login system
+- JWT-based authentication with access and refresh tokens
+- Secure password hashing with bcrypt
+
+### Chat Interface 
+- Real-time chat with AI assistant
+- Context-aware conversations powered by GPT-4/GPT-3.5
+- Document search capabilities via Exa API integration
+- Image generation using DALL-E 2/3 models
+- Support for streaming responses
+
+### Technical Features
+- FastAPI backend with async support 
+- Streamlit frontend for user interface
+- PostgreSQL database with SQLAlchemy ORM
+- Redis for session management and caching
+- Docker containerization with docker-compose
+- Alembic migrations for database versioning
 
 ## Prerequisites
 
 - Python 3.11+
-- PostgreSQL
+- PostgreSQL 
 - Redis
 - Docker and Docker Compose (optional)
+- OpenAI API key
+- Exa API key
 
 ## Environment Setup
 
@@ -29,7 +42,7 @@ cd sales-support-chatBot
 ```
 
 2. Create and activate a virtual environment:
-```bash
+```bash 
 python -m venv venv
 source venv/bin/activate  # Linux/Mac
 # or
@@ -37,36 +50,45 @@ source venv/bin/activate  # Linux/Mac
 ```
 
 3. Install dependencies:
-```bash
-pip install -r requirements/requirements_dev.txt
+```bash 
+pip install -r requirements.txt
 ```
 
-4. Copy the example environment file and configure your settings:
+4. Copy the example environment file:
 ```bash
 cp .env.example .env
 ```
 
 Configure the following environment variables in `.env`:
 ```env
-# Database Configuration
+# Database 
 DB_USER=your_db_user
-DB_PASSWORD=your_db_password
+DB_PASSWORD=your_db_password 
 DB_NAME=your_db_name
 DB_HOST=localhost
 DB_PORT=5432
 
-# Redis Configuration
-REDIS_HOST=localhost
+# Redis
+REDIS_HOST=localhost 
 REDIS_PORT=6379
 
 # API Keys
 OPENAI_API_KEY=your_openai_api_key
 EXA_API_KEY=your_exa_api_key
 
-# JWT Configuration
+# JWT
 JWT_SECRET=your_jwt_secret
 JWT_ALGORITHM=HS256
 JWT_EXPIRATION=210000
+
+# App Settings
+SITE_DOMAIN=127.0.0.1
+ENVIRONMENT=DEVELOPMENT
+SECURE_COOKIES=false
+
+# CORS
+CORS_ORIGINS=["http://localhost:3000"]
+CORS_HEADERS=["*"]
 ```
 
 ## Database Setup
@@ -84,59 +106,44 @@ alembic upgrade head
 ## Running the Application
 
 ### Using Docker Compose
-
-1. Start all services:
 ```bash
 docker-compose up -d
 ```
 
 ### Manual Setup
 
-1. Start the backend server:
+1. Start backend server:
 ```bash
 uvicorn src.main:app --host 0.0.0.0 --port 9000 --reload
 ```
 
-2. Start the frontend application:
+2. Start frontend:
 ```bash
 streamlit run frontend/main.py
 ```
 
-The application will be available at:
+Access points:
 - Backend API: http://localhost:9000
-- Frontend UI: http://localhost:8501
+- Frontend UI: http://localhost:8501 
 - API Documentation: http://localhost:9000/docs
+- Database Admin (Adminer): http://localhost:8080
 
 ## Project Structure
 
 ```
 sales-support-chatBot/
 ├── src/                    # Backend source code
-│   ├── auth/              # Authentication related modules
-│   ├── chat/              # Chat functionality
+│   ├── auth/              # Authentication modules
+│   ├── chat/              # Chat functionality 
 │   └── db/                # Database models and utilities
-├── frontend/              # Streamlit frontend application
+├── frontend/              # Streamlit frontend
+│   ├── pages/            # Frontend page components
+│   └── streamlit_navigation.py
 ├── migrations/            # Database migrations
 ├── requirements/          # Project dependencies
-└── docker-compose.yaml    # Docker compose configuration
+├── tests/                # Test files
+└── docker-compose.yaml    # Docker compose config
 ```
-
-## Features
-
-### Authentication
-- User registration
-- Login with JWT tokens
-- Refresh token mechanism
-
-### Chat Interface
-- Real-time chat with AI assistant
-- Support for text and image generation
-- Context-aware conversations
-- Integration with external knowledge sources
-
-### Admin Interface
-- Database management via Adminer (localhost:8080)
-- Redis insights (localhost:8001)
 
 ## Development
 
@@ -145,10 +152,19 @@ sales-support-chatBot/
 pytest tests/
 ```
 
-### Creating New Migrations
+### Creating Migrations
 ```bash
 alembic revision --autogenerate -m "description"
 ```
+
+### Pre-commit Hooks
+The project uses pre-commit hooks for:
+- YAML validation
+- End of file fixing
+- Line ending normalization
+- Trailing whitespace removal
+- Debug statement checks
+- Black code formatting
 
 ## Contributing
 
