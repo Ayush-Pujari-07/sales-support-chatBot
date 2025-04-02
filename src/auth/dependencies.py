@@ -15,10 +15,8 @@ logger = logging.getLogger(__name__)
 
 
 async def valid_user_create(
-    user: AuthUser,
-    db: AsyncSession = Depends(get_db)
+    user: AuthUser, db: AsyncSession = Depends(get_db)
 ) -> AuthUser:
-
     logger.info(user)
     if await service.get_user_by_email(db, user.email):
         raise EmailTaken()
@@ -53,5 +51,7 @@ async def valid_refresh_token_user(
 
 
 def _is_valid_refresh_token(db_refresh_token: dict[str, Any]) -> bool:
-    expires_at = datetime.fromisoformat(str(db_refresh_token.expires_at)).astimezone(timezone.utc)
+    expires_at = datetime.fromisoformat(str(db_refresh_token.expires_at)).astimezone(
+        timezone.utc
+    )
     return datetime.now(timezone.utc) <= expires_at

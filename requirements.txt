@@ -1,27 +1,27 @@
-redis
 alembic
+asyncpg
 bcrypt
-# psycopg2
-python-jose
-SQLAlchemy
-httpx
 boto3
+exa-py
 fastapi
-uvicorn
+httpx
+jsonschema
+langchain-openai
+motor
+openai
 passlib
-sentry-sdk
+pdfplumber
+pydantic-settings
 
 pydantic[email]
-pydantic-settings
-asyncpg
-openai
 PyMuPDF
-tiktoken
-pdfplumber
-langchain-openai
-jsonschema
+# psycopg2
+python-jose
 python-multipart
-exa-py
+redis
+sentry-sdk
+SQLAlchemy
 sqlalchemy-file
-motor
 sqlalchemy_file
+tiktoken
+uvicorn

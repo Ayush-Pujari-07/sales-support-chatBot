@@ -35,5 +35,6 @@ def get_refresh_token_settings(
 def generate_random_alphanum(length: int = 20) -> str:
     return "".join(random.choices(ALPHA_NUM, k=length))
 
+
 def calculate_refresh_token_expiry() -> datetime:
     return datetime.utcnow() + timedelta(seconds=auth_config.REFRESH_TOKEN_EXP)

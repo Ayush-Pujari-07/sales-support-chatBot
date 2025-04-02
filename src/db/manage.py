@@ -1,6 +1,6 @@
 """
 This module contains utility functions for managing the PostgreSQL database.
-It uses an .env file to determine the target database. 
+It uses an .env file to determine the target database.
 """
 
 import os
@@ -33,7 +33,8 @@ DB_PORT = os.environ.get("DB_PORT")
 logger = logging.getLogger(__name__)
 
 logger.info(
-    f"postgresql+asyncpg://{DB_USER}:{DB_PASSWORD}@{DB_HOST}:{DB_PORT}/{DB_NAME}")
+    f"postgresql+asyncpg://{DB_USER}:{DB_PASSWORD}@{DB_HOST}:{DB_PORT}/{DB_NAME}"
+)
 
 
 async def database_exists(conn, db_name):
@@ -154,7 +155,13 @@ async def check_current_head(database_name):
 @asynccontextmanager
 async def get_conn(db_name=None):
     try:
-        conn = await asyncpg.connect(user=DB_USER, password=DB_PASSWORD, host=DB_HOST, port=DB_PORT, database=db_name)
+        conn = await asyncpg.connect(
+            user=DB_USER,
+            password=DB_PASSWORD,
+            host=DB_HOST,
+            port=DB_PORT,
+            database=db_name,
+        )
         yield conn
     finally:
         await conn.close()
@@ -164,7 +171,9 @@ async def delete_template_db(conn):
     db_name = "template_db"
     if await database_exists(conn, db_name):
         logger.info("Deleting existing template_db")
-        await conn.execute("SELECT pg_terminate_backend(pid) FROM pg_stat_activity WHERE datname = 'template_db';")
+        await conn.execute(
+            "SELECT pg_terminate_backend(pid) FROM pg_stat_activity WHERE datname = 'template_db';"
+        )
 
         await conn.execute(
             "UPDATE pg_database SET datistemplate = FALSE WHERE datname = $1",
@@ -205,14 +214,16 @@ async def create_db_from_template(conn, db_name):
     # Create a new database using the template database
     await conn.execute(f"CREATE DATABASE {db_name} WITH TEMPLATE {template_db_name}")
     logger.info(
-        f"Database {db_name} created successfully from template {template_db_name}.")
+        f"Database {db_name} created successfully from template {template_db_name}."
+    )
 
 
 async def main():
     parser = argparse.ArgumentParser(description="Create (or delete) the database.")
     parser.add_argument("--test", action="store_true", help="Use the test database")
-    parser.add_argument("--delete", action="store_true",
-                        help="Delete the database if it exists.")
+    parser.add_argument(
+        "--delete", action="store_true", help="Delete the database if it exists."
+    )
     parser.add_argument(
         "--enable-extensions",
         action="store_true",
@@ -223,20 +234,32 @@ async def main():
         action="store_true",
         help="Enable extensions defined in enable_extensions function body in existing database",
     )
-    parser.add_argument("--recreate", action="store_true",
-                        help="Recreate the database (drop and create).")
-    parser.add_argument("--create-template", action="store_true",
-                        help="Create a template database from migrations.")
-    parser.add_argument("--check-current-head", action="store_true",
-                        help="Check if the database is up to date.")
+    parser.add_argument(
+        "--recreate",
+        action="store_true",
+        help="Recreate the database (drop and create).",
+    )
+    parser.add_argument(
+        "--create-template",
+        action="store_true",
+        help="Create a template database from migrations.",
+    )
+    parser.add_argument(
+        "--check-current-head",
+        action="store_true",
+        help="Check if the database is up to date.",
+    )
 
     subparsers = parser.add_subparsers(dest="subcommand")
     template_parser = subparsers.add_parser(
-        "template", help="Create a template database from migrations.")
+        "template", help="Create a template database from migrations."
+    )
     template_parser.add_argument(
-        "--create", action="store_true", help="Create the template database.")
+        "--create", action="store_true", help="Create the template database."
+    )
     template_parser.add_argument(
-        "--delete", action="store_true", help="Delete the template database.")
+        "--delete", action="store_true", help="Delete the template database."
+    )
 
     args = parser.parse_args()
 
@@ -276,11 +299,15 @@ async def main():
 
     db_name = os.environ["DB_NAME_TEST"] if args.test else DB_NAME
     # DB_URL = f"postgresql+asyncpg://{DB_USER}:{DB_PASSWORD}@{DB_HOST}:{DB_PORT}/{db_name}"
-    DB_URL = f"postgresql+asyncpg://{DB_USER}:{DB_PASSWORD}@{DB_HOST}:{DB_PORT}/{db_name}"
+    DB_URL = (
+        f"postgresql+asyncpg://{DB_USER}:{DB_PASSWORD}@{DB_HOST}:{DB_PORT}/{db_name}"
+    )
     logger.info(f"DB_URL: {DB_URL}")
 
     engine = create_async_engine(DB_URL)
-    conn = await asyncpg.connect(user=DB_USER, password=DB_PASSWORD, host=DB_HOST, database=db_name, port=DB_PORT)
+    conn = await asyncpg.connect(
+        user=DB_USER, password=DB_PASSWORD, host=DB_HOST, database=db_name, port=DB_PORT
+    )
     try:
         db_exists = await database_exists(conn, db_name)
 

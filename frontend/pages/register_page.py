@@ -6,7 +6,9 @@ REGISTER_URL = "http://127.0.0.1:9000/users"
 
 def register_user(email, password):
     try:
-        response = requests.post(REGISTER_URL, json={"email": email, "password": password})
+        response = requests.post(
+            REGISTER_URL, json={"email": email, "password": password}
+        )
         response.raise_for_status()
         return response
     except requests.RequestException as e:

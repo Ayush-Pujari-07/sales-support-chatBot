@@ -8,6 +8,7 @@ from typing import Any  # type: ignore
 from pydantic import RedisDsn, model_validator
 from pydantic_settings import BaseSettings
 from dotenv import load_dotenv, find_dotenv
+
 load_dotenv(find_dotenv())
 
 PROJECT_ROOT = Path(__file__).parent.parent.parent
@@ -34,7 +35,6 @@ class Environment(str, Enum):
 
 
 class Config(BaseSettings):
-
     # REDIS_URL: str | RedisDsn = os.getenv("REDIS_URL")
     # DATABASE_URL: str = os.getenv("DATABASE_URL")
 

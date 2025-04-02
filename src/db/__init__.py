@@ -25,8 +25,9 @@ def _custom_json_serializer(*args, **kwargs) -> str:
 # https://docs.sqlalchemy.org/en/20/core/engines.html#sqlalchemy.create_engine.params.echo
 echo: str | bool
 echo = "debug" if settings.DEBUG else False
-engine = create_async_engine(settings.DB_URL, echo=echo,
-                             json_serializer=_custom_json_serializer)
+engine = create_async_engine(
+    settings.DB_URL, echo=echo, json_serializer=_custom_json_serializer
+)
 Session = async_sessionmaker(engine, expire_on_commit=False)
 
 

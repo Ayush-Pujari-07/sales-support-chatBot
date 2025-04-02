@@ -32,7 +32,9 @@ def create_access_token(
         "password": str(user.password),
     }
 
-    return jwt.encode(jwt_data, auth_config.SECRET_KEY, algorithm=auth_config.JWT_ALGORITHM)
+    return jwt.encode(
+        jwt_data, auth_config.SECRET_KEY, algorithm=auth_config.JWT_ALGORITHM
+    )
 
 
 async def parse_jwt_user_data_optional(

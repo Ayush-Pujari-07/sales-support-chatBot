@@ -28,12 +28,20 @@ class ChatRole(str, enum.Enum):
 class ChatMessage(Base, CreatedUpdatedMixin):
     __tablename__ = "chat_message"
 
-    id: Mapped[uuid.UUID] = mapped_column(primary_key=True, server_default=func.uuid_generate_v4())
-    user_id: Mapped[uuid.UUID] = mapped_column(sa.UUID, ForeignKey("auth_user.id"), nullable=False)
+    id: Mapped[uuid.UUID] = mapped_column(
+        primary_key=True, server_default=func.uuid_generate_v4()
+    )
+    user_id: Mapped[uuid.UUID] = mapped_column(
+        sa.UUID, ForeignKey("auth_user.id"), nullable=False
+    )
     message: Mapped[str] = mapped_column(sa.Text, nullable=False)
-    role: Mapped[ChatRole] = mapped_column(sa.Enum(ChatRole, name="chat_role"), nullable=False)
+    role: Mapped[ChatRole] = mapped_column(
+        sa.Enum(ChatRole, name="chat_role"), nullable=False
+    )
 
-    user: Mapped[auth_models.User] = relationship("User")  # Define the relationship to the User model
+    user: Mapped[auth_models.User] = relationship(
+        "User"
+    )  # Define the relationship to the User model
 
     def __repr__(self) -> str:
         return f"<ChatMessage {self.id} from user {self.user_id}>"
@@ -47,11 +55,9 @@ class ChatImage(Base, CreatedUpdatedMixin):
     file: Mapped[File] = mapped_column(
         ImageField(
             thumbnail_size=(512, 512),
-            validators=[SizeValidator(
-                max_size=settings.MAX_IMAGE_UPLOAD_SIZE)],
+            validators=[SizeValidator(max_size=settings.MAX_IMAGE_UPLOAD_SIZE)],
         ),
         nullable=False,
     )
 
-    chat_id: Mapped[int] = mapped_column(
-        ForeignKey("chat_message.id"), nullable=True)
+    chat_id: Mapped[int] = mapped_column(ForeignKey("chat_message.id"), nullable=True)

@@ -45,5 +45,9 @@ def pg_utcnow(element, compiler, **kw):
 class CreatedUpdatedMixin:
     """Adds created_at, updated_at columns to a model"""
 
-    created_at: Mapped[datetime] = mapped_column(server_default=utcnow(), nullable=False)
-    updated_at: Mapped[datetime] = mapped_column(server_default=utcnow(), onupdate=utcnow(), nullable=False)
+    created_at: Mapped[datetime] = mapped_column(
+        server_default=utcnow(), nullable=False
+    )
+    updated_at: Mapped[datetime] = mapped_column(
+        server_default=utcnow(), onupdate=utcnow(), nullable=False
+    )

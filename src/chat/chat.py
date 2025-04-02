@@ -27,7 +27,8 @@ class Chat:
         self.messages: list[ChatMessage] = []
         self.tools = [exa_search, get_generated_image]
         self.chat_model = ChatOpenAI(
-            openai_api_key=settings.OPENAI_API_KEY, model=GPT4).bind_tools(self.tools)
+            openai_api_key=settings.OPENAI_API_KEY, model=GPT4
+        ).bind_tools(self.tools)
 
     async def get_messages(self, db: AsyncSession):
         stmt = (
@@ -39,9 +40,7 @@ class Chat:
         return result.scalars().all()
 
     async def initialize_task_chat(
-        self,
-        db: AsyncSession,
-        stream: bool = False
+        self, db: AsyncSession, stream: bool = False
     ) -> dict:
         try:
             system_prompt = (
@@ -65,6 +64,7 @@ class Chat:
             logger.debug(f"message_history: {message_history}")
 
             if stream:
+
                 def response():
                     content = ""
                     for chunk in self.chat_model.astream(message_history):
@@ -77,7 +77,9 @@ class Chat:
             else:
                 completion = await self.chat_model.ainvoke(message_history)
 
-                message = await self.add_assistant_message(db=db, content=completion.content, commit=True, user_id=self.user_id)
+                message = await self.add_assistant_message(
+                    db=db, content=completion.content, commit=True, user_id=self.user_id
+                )
                 logger.debug(f"message: {message}")
 
                 await db.commit()
@@ -98,8 +100,7 @@ class Chat:
     ):
         try:
             logger.info("I am here in add_message !!!")
-            message = ChatMessage(
-                user_id=user_id, role=role, message=content)
+            message = ChatMessage(user_id=user_id, role=role, message=content)
 
             db.add(message)
 
@@ -116,22 +117,49 @@ class Chat:
             logger.error(f"Error adding message: {e}")
             raise e
 
-    async def add_system_message(self, db: AsyncSession, content: str, commit: bool = True, user_id: Optional[uuid.UUID] = None):
-        return await self.add_message(db=db, role="system", content=content, commit=commit, user_id=user_id)
+    async def add_system_message(
+        self,
+        db: AsyncSession,
+        content: str,
+        commit: bool = True,
+        user_id: Optional[uuid.UUID] = None,
+    ):
+        return await self.add_message(
+            db=db, role="system", content=content, commit=commit, user_id=user_id
+        )
 
-    async def add_user_message(self, db: AsyncSession, content: str, commit: bool = True, user_id: Optional[uuid.UUID] = None):
-        return await self.add_message(db=db, role="user", content=content, commit=commit, user_id=user_id)
+    async def add_user_message(
+        self,
+        db: AsyncSession,
+        content: str,
+        commit: bool = True,
+        user_id: Optional[uuid.UUID] = None,
+    ):
+        return await self.add_message(
+            db=db, role="user", content=content, commit=commit, user_id=user_id
+        )
 
-    async def add_assistant_message(self, db: AsyncSession, content: str, commit: bool = True, user_id: Optional[uuid.UUID] = None):
-        return await self.add_message(db=db, role="assistant", content=content, commit=commit, user_id=user_id)
+    async def add_assistant_message(
+        self,
+        db: AsyncSession,
+        content: str,
+        commit: bool = True,
+        user_id: Optional[uuid.UUID] = None,
+    ):
+        return await self.add_message(
+            db=db, role="assistant", content=content, commit=commit, user_id=user_id
+        )
 
     async def get_all_messages_roles(self, user_id: uuid.UUID):
         stmt = (
             select(ChatMessage)
             .where(
-                (ChatMessage.user_id == user_id) &
-                (ChatMessage.role.in_(
-                    [ChatRole.ASSISTANT, ChatRole.USER, ChatRole.SYSTEM]))
+                (ChatMessage.user_id == user_id)
+                & (
+                    ChatMessage.role.in_(
+                        [ChatRole.ASSISTANT, ChatRole.USER, ChatRole.SYSTEM]
+                    )
+                )
             )
             .order_by(ChatMessage.created_at.asc())
         )
@@ -161,11 +189,14 @@ class Chat:
     ):
         try:
             logger.debug(f"user_message: {user_message}")
-            await self.add_user_message(db=db, content=user_message, user_id=self.user_id)
+            await self.add_user_message(
+                db=db, content=user_message, user_id=self.user_id
+            )
 
             message_history = await self.get_message_history()
 
             if stream:
+
                 async def response():
                     content = ""
                     async for chunk in self.chat_model.astream(message_history):
@@ -173,9 +204,12 @@ class Chat:
                         yield chunk
                     message.content = content
                     db.add(message)
+
                 return response()
 
-            message = await self.process_completion(request, db, message_history, self.user_id)
+            message = await self.process_completion(
+                request, db, message_history, self.user_id
+            )
             await db.commit()
             await db.refresh(message)
 
@@ -190,7 +224,7 @@ class Chat:
         request: Request,
         db: AsyncSession,
         message_history: List[Union[HumanMessage, AIMessage, SystemMessage]],
-        user_id: uuid.UUID
+        user_id: uuid.UUID,
     ):
         try:
             while True:
@@ -208,20 +242,26 @@ class Chat:
                         "get_generated_image": get_generated_image,
                     }.get(tool_call["name"].lower()):
                         tool_output = await selected_tool.ainvoke(tool_call["args"])
-                        message_history.append(ToolMessage(
-                            tool_output, tool_call_id=tool_call["id"]))
+                        message_history.append(
+                            ToolMessage(tool_output, tool_call_id=tool_call["id"])
+                        )
 
             chat_image_ids = []
-            if contains_any_url(completion.content, "https://oaidalleapiprodscus.blob.core.windows.net"):
+            if contains_any_url(
+                completion.content, "https://oaidalleapiprodscus.blob.core.windows.net"
+            ):
                 result = await map_all_urls(request, db, completion.content)
                 url_mapping = result["url_mapping"]
                 chat_image_ids = result["chat_image_ids"]
 
                 for original_url, local_url in url_mapping.items():
                     completion.content = completion.content.replace(
-                        original_url, local_url)
+                        original_url, local_url
+                    )
 
-            message = await self.add_assistant_message(db=db, content=completion.content, commit=True, user_id=user_id)
+            message = await self.add_assistant_message(
+                db=db, content=completion.content, commit=True, user_id=user_id
+            )
             logger.debug(f"Message: {message}")
 
             if chat_image_ids:
@@ -238,9 +278,8 @@ class Chat:
         stmt = (
             select(ChatMessage)
             .where(
-                (ChatMessage.user_id == self.user_id) &
-                (ChatMessage.role.in_(
-                    [ChatRole.ASSISTANT, ChatRole.USER]))
+                (ChatMessage.user_id == self.user_id)
+                & (ChatMessage.role.in_([ChatRole.ASSISTANT, ChatRole.USER]))
             )
             .order_by(ChatMessage.created_at.asc())
         )
@@ -264,8 +303,8 @@ class Chat:
             message_history = await self.get_message_history()
 
             message = [
-                {'type': 'image_url', 'image_url': {'url': image_data}},
-                {'type': 'text', 'text': user_message},
+                {"type": "image_url", "image_url": {"url": image_data}},
+                {"type": "text", "text": user_message},
             ]
 
             message_history = message_history[-4:]
@@ -275,21 +314,28 @@ class Chat:
             completion = await chat_model.ainvoke(message_history)
 
             message_history.append(AIMessage(content=completion.content))
-            message_history.append(HumanMessage(
-                content=self.talking_prompt(image_review=completion.content)
-            ))
+            message_history.append(
+                HumanMessage(
+                    content=self.talking_prompt(image_review=completion.content)
+                )
+            )
 
             talk_completion = await chat_model.ainvoke(message_history)
 
-            final_completion = json.dumps([
-                # this will be dislayed in chat modal
-                {"reviews": completion.content},
-                # elevel labs to get voice response
-                {"conversation": talk_completion.content}
-            ])
+            final_completion = json.dumps(
+                [
+                    # this will be dislayed in chat modal
+                    {"reviews": completion.content},
+                    # elevel labs to get voice response
+                    {"conversation": talk_completion.content},
+                ]
+            )
 
             await self.add_user_message(
-                db=db, content=str(message[1]['text']), commit=True, user_id=self.user_id
+                db=db,
+                content=str(message[1]["text"]),
+                commit=True,
+                user_id=self.user_id,
             )
             message = await self.add_assistant_message(
                 db=db, content=final_completion, commit=True, user_id=self.user_id

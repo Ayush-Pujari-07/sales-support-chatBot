@@ -11,6 +11,7 @@ from exa_py import Exa
 from urllib.parse import urlparse  # type: ignore
 from pdfplumber import open as open_pdf
 from dotenv import load_dotenv, find_dotenv
+
 load_dotenv(find_dotenv())
 
 logger = logging.getLogger(__name__)
@@ -58,10 +59,13 @@ async def extract_text_from_pdf(pdf_url: str) -> str:
 
 def filter_strings(list_of_words: list) -> str:
     try:
-        final_words = [item for item in list_of_words if isinstance(
-            item, str) and any(c.isalpha() for c in item)]
+        final_words = [
+            item
+            for item in list_of_words
+            if isinstance(item, str) and any(c.isalpha() for c in item)
+        ]
         final_words = final_words[:7000]
-        return ' '.join(final_words)
+        return " ".join(final_words)
 
     except Exception as e:
         logger.error(f"Error in filtering strings: {e}")
@@ -78,7 +82,7 @@ def delete_file(filename):
 
 def download_pdf(url, filename):
     response = requests.get(url)
-    with open(filename, 'wb') as f:
+    with open(filename, "wb") as f:
         f.write(response.content)
 
 
@@ -91,12 +95,12 @@ async def generate_content(messages: list, model: str = GPT4) -> dict:
 
     # Initialize OpenAI client
     client = AsyncOpenAI(api_key=api_key)
-    if model == GPT4 and 'json' in messages[0]['content'].lower():
+    if model == GPT4 and "json" in messages[0]["content"].lower():
         res = await client.chat.completions.create(
             model=model,
             messages=messages,
             temperature=1,
-            response_format={'type': 'json_object'}
+            response_format={"type": "json_object"},
         )
         return eval(res.choices[0].message.content)
 
@@ -118,7 +122,6 @@ def get_generated_image(prompt, number_of_images):
     # Initialize OpenAI client
     client = AsyncOpenAI(api_key=api_key)
     if number_of_images > 1:
-
         image_response = client.images.generate(
             model="dall-e-2",
             prompt=f"Create an image of {prompt}",
@@ -141,7 +144,7 @@ def get_generated_image(prompt, number_of_images):
 async def exa_search(query):
     try:
         searched_content = []
-        exa = Exa(api_key=os.environ.get('EXA_API_KEY'))
+        exa = Exa(api_key=os.environ.get("EXA_API_KEY"))
         exa_response = exa.search_and_contents(query, num_results=2)
         for text in exa_response.results:
             searched_content.append(await restrict_tokens(text.text, 2000))
@@ -183,8 +186,12 @@ async def summarize_text(text, outline):
         SUMMERIZE_SYSTEM_PROMPT = "Please clean the following internet data: {all_search_data} and provide me the very detailed points of the data based on my outline: {outline}. Minimum length of the data should be 1000 words"
 
         summary_of_searched_data_messages = [
-            {"role": "system", "content": SUMMERIZE_SYSTEM_PROMPT.format(
-                all_search_data=text, outline=outline)}
+            {
+                "role": "system",
+                "content": SUMMERIZE_SYSTEM_PROMPT.format(
+                    all_search_data=text, outline=outline
+                ),
+            }
         ]
 
         client = AsyncOpenAI(api_key=os.environ.get("OPENAI_API_KEY"))

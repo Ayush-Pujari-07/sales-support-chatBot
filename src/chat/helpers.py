@@ -51,13 +51,21 @@ def create_summery(text: str, question: str):
         response = client.chat.completions.create(
             model=GPT3,
             messages=[
-                {"role": "system", "content": SUMMERIZATION_SYSTEM_PROMPT.format(
-                    text=restrict_tokens(text), question=question)}
+                {
+                    "role": "system",
+                    "content": SUMMERIZATION_SYSTEM_PROMPT.format(
+                        text=restrict_tokens(text), question=question
+                    ),
+                }
             ],
         )
         return response.choices[0].message.content
     except Exception as e:
-        return {"status": "error", "message": str(e), "code": "ERR_GENERATION_INTERRUPTED"}
+        return {
+            "status": "error",
+            "message": str(e),
+            "code": "ERR_GENERATION_INTERRUPTED",
+        }
 
 
 @tool
@@ -72,8 +80,7 @@ def exa_search(query: str):
     """
     exa = Exa(api_key=os.environ.get("EXA_API_KEY"))
     exa_response = exa.search_and_contents(query, num_results=5)
-    summery = [create_summery(text.text, query)
-               for text in exa_response.results]
+    summery = [create_summery(text.text, query) for text in exa_response.results]
     return "\n".join(summery)
 
 

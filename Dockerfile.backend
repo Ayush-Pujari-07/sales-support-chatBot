@@ -18,7 +18,7 @@ COPY . /app
 
 RUN useradd -m -d /app -s /bin/bash app \
     && chown -R app:app /app/*
-    
+
 WORKDIR /app
 USER app
 

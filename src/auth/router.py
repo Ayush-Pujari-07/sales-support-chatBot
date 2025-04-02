@@ -28,7 +28,6 @@ async def register_user(
     db: AsyncSession = Depends(get_db),
     auth_data: AuthUser = Depends(valid_user_create),
 ) -> UserResponse:
-
     user = await service.create_user(db, auth_data)
     logger.info(f"User created: {user.email}")
     return UserResponse(email=user.email)
